@@ -101,8 +101,6 @@ Aqui estão algumas capturas de tela do projeto:
 ![Imagem 1](https://raw.githubusercontent.com/AlphaJR36/sales-dashboard/master/.github/images/Screenshot_1.png)
 ![Imagem 2](https://raw.githubusercontent.com/AlphaJR36/sales-dashboard/master/.github/images/Screenshot_2.png)
 ![Imagem 3](https://raw.githubusercontent.com/AlphaJR36/sales-dashboard/master/.github/images/Screenshot_3.png)
-
-## Créditos
 ## Créditos
 
 Este projeto foi desenvolvido com base no repositório `dashboard-vendas` mantido por [Pani-Kaz](https://github.com/Pani-Kaz).
