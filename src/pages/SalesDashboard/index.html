@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Dashboard</title>
+  <link rel="stylesheet" href="/pages/SalesDashboard/style.css">
+</head>
+
+<body>
+  <div class="cards">
+    <div class="card">
+      Pendentes
+      <br>
+      <span>0</span>
+    </div>
+    <div class="card">
+      Clientes
+      <br>
+      <span>0</span>
+    </div>
+    <div class="card">
+      Vendas
+      <br>
+      <span>0</span>
+    </div>
+    <div class="card">
+      Entregas
+      <br>
+      <span>0</span>
+    </div>
+  </div>
+
+  <div class="sales-container">
+    <div class="sales-header">
+      <button class="add-button" onclick="openModal()">Adicionar Cliente</button>
+    </div>
+    <div class="sales-list">
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Adicionar Cliente</h2>
+      <form id="add-client-form" onsubmit="addSale(event)">
+        <label for="client-name">Nome do Cliente:</label>
+        <input type="text" id="client-name" required>
+
+        <label for="client-id">ID do Cliente:</label>
+        <input type="text" id="client-id" required>
+
+        <label for="price">Valor:</label>
+        <input type="number" id="price" required>
+
+        <button type="submit">Adicionar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const sales = JSON.parse(localStorage.getItem("sales")) || [];
+    const pendingSales = JSON.parse(localStorage.getItem("pendingSales")) || [];
+    const deliveredSales = JSON.parse(localStorage.getItem("deliveredSales")) || [];
+    const customers = JSON.parse(localStorage.getItem("customers")) || [];
+
+    function openModal() {
+      const modal = document.getElementById("modal");
+      if (modal) {
+        modal.style.display = "block";
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("modal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    function addSale(event) {
+      event.preventDefault();
+
+      const clientNameInput = document.getElementById("client-name");
+      const clientIdInput = document.getElementById("client-id");
+      const clientValueInput = document.getElementById("price");
+
+      const clientName = String(clientNameInput.value);
+      const clientId = Number(clientIdInput.value);
+      const value = Number(clientValueInput.value);
+
+      const newSale = {
+        clientName,
+        clientId,
+        value,
+      };
+
+      sales.push(newSale);
+      pendingSales.push(newSale);
+      customers.push(clientId);
+
+      renderSales();
+      updateCardCounts();
+
+      closeModal();
+
+      localStorage.setItem("sales", JSON.stringify(sales));
+      localStorage.setItem("pendingSales", JSON.stringify(pendingSales));
+      localStorage.setItem("deliveredSales", JSON.stringify(deliveredSales));
+      localStorage.setItem("customers", JSON.stringify(customers));
+    }
+
+    function updateCardCounts() {
+      const pendingCount = pendingSales.length;
+      const deliveredCount = deliveredSales.length;
+      const customersCount = customers.length;
+
+      const pendingCountElement = document.querySelector(".cards .card:nth-child(1) span");
+      const deliveredCountElement = document.querySelector(".cards .card:nth-child(4) span");
+      const customersCountElement = document.querySelector(".cards .card:nth-child(2) span");
+
+      if (pendingCountElement) {
+        pendingCountElement.textContent = pendingCount;
+      }
+      if (deliveredCountElement) {
+        deliveredCountElement.textContent = deliveredCount;
+      }
+      if (customersCountElement) {
+        customersCountElement.textContent = customersCount;
+      }
+    }
+
+    function completeSale(index) {
+      const completedSale = pendingSales.splice(index, 1)[0];
+      deliveredSales.push(completedSale);
+
+      renderSales();
+      updateCardCounts();
+
+      localStorage.setItem("pendingSales", JSON.stringify(pendingSales));
+      localStorage.setItem("deliveredSales", JSON.stringify(deliveredSales));
+    }
+
+    function renderSales() {
+      const salesList = document.querySelector(".sales-list");
+      if (salesList) {
+        salesList.innerHTML = "";
+
+        pendingSales.forEach((sale, index) => {
+          const saleElement = createSaleElement(sale, index, true);
+          salesList.appendChild(saleElement);
+        });
+
+        deliveredSales.forEach((sale, index) => {
+          const saleElement = createSaleElement(sale, index, false);
+          salesList.appendChild(saleElement);
+        });
+      }
+    }
+
+    function createSaleElement(sale, index, isPending) {
+      const saleElement = document.createElement("div");
+      saleElement.classList.add("sale");
+
+      const saleInfo = document.createElement("div");
+      saleInfo.classList.add("sale-info");
+
+      const clientNameElement = document.createElement("h3");
+      clientNameElement.textContent = `${sale.clientName} (${sale.clientId})`;
+
+      const valueElement = document.createElement("p");
+      valueElement.textContent = `Preço: R$ ${sale.value.toFixed(2)}`;
+
+      saleInfo.appendChild(clientNameElement);
+      saleInfo.appendChild(valueElement);
+
+      const saleButton = document.createElement("button");
+      saleButton.classList.add("sale-button");
+      saleButton.textContent = isPending ? "Finalizar Encomenda" : "Entregue";
+      saleButton.addEventListener("click", () => completeSale(index));
+
+      saleElement.appendChild(saleInfo);
+      saleElement.appendChild(saleButton);
+
+      return saleElement;
+    }
+
+    renderSales();
+    updateCardCounts();
+  </script>
+</body>
+
+</html>
